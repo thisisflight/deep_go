@@ -9,12 +9,12 @@ import (
 
 // go test -v hw_test.go
 
-func ToLittleEndian(number uint32) uint32 {
-	var target uint32
+func ToLittleEndian[T uint8 | uint16 | uint32](number T) T {
+	var target T
 	sourcePtr := unsafe.Pointer(&number)
 	targetPtr := unsafe.Pointer(&target)
 	size := int(unsafe.Sizeof(number))
-	for i := 0; i < size; i++ {
+	for i := range size {
 		*(*uint8)(unsafe.Add(targetPtr, i)) = *(*uint8)(unsafe.Add(sourcePtr, size-1-i))
 	}
 	return target
