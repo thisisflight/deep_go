@@ -11,20 +11,15 @@ import (
 // go test -v hw_test.go
 
 type CircularQueue[T constraints.Signed] struct {
-	values   []T
-	head     int
-	tail     int
-	capacity int
-	size     int
+	values []T
+	head   int
+	tail   int
+	size   int
 }
 
 func NewCircularQueue[T constraints.Signed](size int) CircularQueue[T] {
 	return CircularQueue[T]{
-		values:   make([]T, size),
-		capacity: size,
-		head:     0,
-		tail:     -1,
-		size:     0,
+		values: make([]T, size),
 	}
 }
 
@@ -33,8 +28,8 @@ func (q *CircularQueue[T]) Push(value T) bool {
 		return false
 	}
 
-	q.tail = (q.tail + 1) % q.capacity
 	q.values[q.tail] = value
+	q.tail = (q.tail + 1) % cap(q.values)
 	q.size++
 	return true
 }
@@ -44,7 +39,7 @@ func (q *CircularQueue[T]) Pop() bool {
 		return false
 	}
 
-	q.head = (q.head + 1) % q.capacity
+	q.head = (q.head + 1) % cap(q.values)
 	q.size--
 	return true
 }
@@ -60,7 +55,8 @@ func (q *CircularQueue[T]) Back() T {
 	if q.Empty() {
 		return -1
 	}
-	return q.values[q.tail]
+	lastIndex := (q.tail - 1 + cap(q.values)) % cap(q.values)
+	return q.values[lastIndex]
 }
 
 func (q *CircularQueue[T]) Empty() bool {
@@ -68,7 +64,7 @@ func (q *CircularQueue[T]) Empty() bool {
 }
 
 func (q *CircularQueue[T]) Full() bool {
-	return q.capacity == q.size
+	return q.size == cap(q.values)
 }
 
 func TestCircularQueue(t *testing.T) {
